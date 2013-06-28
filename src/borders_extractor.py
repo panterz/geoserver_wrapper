@@ -1,26 +1,22 @@
 import sys, argparse, ast, csv, os
 from xml.etree.ElementTree import Element, SubElement, Comment, ElementTree, tostring
-import requests, logging
-from logging import handlers
+import requests
+from logtool import getLogger
+from format_converter import Convertor
 
 """
 example:
 python borders_extractor.py -u='http://localhost:8081/geoserver/wfs' -w='ukb' -n='england_ct_2001' -fr='SHAPE-ZIP' -fi='{"label": [11, 12]}'
 """
 
-def getLogger(app):
-    logger = logging.getLogger(app)
-    logger.setLevel(logging.DEBUG)
-    # create file handler which logs even debug messages
-    #fh = logging.FileHandler(config.get("path","log_file"))
-    fh = handlers.TimedRotatingFileHandler(os.path.join(os.environ["HOME"], "local/geoserver_wrapper/logs/geoserver_wrapper.log"), when='midnight')
-    fh.setLevel(logging.DEBUG)
-    # create formatter and add it to the handler
-    formatter = logging.Formatter('%(asctime)s - %(name)s:%(lineno)d - %(levelname)s - %(message)s')
-    fh.setFormatter(formatter)
-    # add the handlers to the logger
-    logger.addHandler(fh)
-    return logger
+def get_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-u', help='geoserver url')
+    parser.add_argument('-w', help='data workspace')
+    parser.add_argument('-n', help='data name')
+    parser.add_argument('-fr', help='format')
+    parser.add_argument('-fi', help='filters')
+    return parser.parse_args()
 
 log = getLogger('Geoserver-Wrapper')
 
@@ -137,13 +133,7 @@ class GeoserverExtractor(object):
         return tostring(root, 'utf8')
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-u', help='geoserver url')
-    parser.add_argument('-w', help='data workspace')
-    parser.add_argument('-n', help='data name')
-    parser.add_argument('-fr', help='format')
-    parser.add_argument('-fi', help='filters')
-    args = parser.parse_args()
+    args = get_arguments()
     url = args.u
     if url:
         workspace = args.w
