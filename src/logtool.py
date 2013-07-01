@@ -1,4 +1,4 @@
-import logging
+import logging, os
 from logging import handlers
 
 def getLogger(app):

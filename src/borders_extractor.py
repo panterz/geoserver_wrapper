@@ -1,4 +1,4 @@
-import sys, argparse, ast, csv, os
+import sys, argparse, ast, csv, os, zipfile
 from xml.etree.ElementTree import Element, SubElement, Comment, ElementTree, tostring
 import requests
 from logtool import getLogger
@@ -6,7 +6,7 @@ from format_converter import Convertor
 
 """
 example:
-python borders_extractor.py -u='http://localhost:8081/geoserver/wfs' -w='ukb' -n='england_ct_2001' -fr='SHAPE-ZIP' -fi='{"label": [11, 12]}'
+python borders_extractor.py -u='http://localhost:8081/geoserver/wfs' -w='ukb' -n='england_ct_2001' -fr='SHAPE-ZIP' -fi='{"label": [11, 12]}' -o='output'
 """
 
 def get_arguments():
@@ -16,13 +16,14 @@ def get_arguments():
     parser.add_argument('-n', help='data name')
     parser.add_argument('-fr', help='format')
     parser.add_argument('-fi', help='filters')
+    parser.add_argument('-o', help='output folder')
     return parser.parse_args()
 
 log = getLogger('Geoserver-Wrapper')
 
 class GeoserverExtractor(object):
     
-    def __init__(self, url, workspace, name, frmt, filters=None):
+    def __init__(self, url, workspace, name, frmt, output, filters=None):
         """
         initialize
         """
@@ -31,30 +32,47 @@ class GeoserverExtractor(object):
         self.frmt = frmt
         self.filters = filters
         self.url = url
-        log.debug("init with workspace %s, name %s, format %s, filters %s and url %s" % (self.workspace, self.name, self.frmt, self.filters, self.url))
+        self.output = output
+        log.debug("init with workspace %s, name %s, format %s, filters %s, url %s and output folder %s" % (self.workspace, self.name, self.frmt, self.filters, self.url, self.output))
     
     def get_data(self):
         """
         do get request for getting the data
         """
-        exts = {"SHAPE-ZIP": "zip", "CSV": "csv", "JSON": "json", "GML2": "xml", "GML3": "xml", "OGR-KML": "kml", "OGR-TAB": "zip", "OGR-TAB": "zip", "OGR-CSV": "csv"}
+        exts = {"SHAPE-ZIP": "zip", "CSV": "csv", "JSON": "json", "GML2": "xml", "GML3": "xml", "OGR-KML": "kml", "OGR-TAB": "zip", "OGR-TAB": "zip", "OGR-CSV": "csv", "DXF": "dxf"}
         params = {'service': 'WFS', 'request': 'GetFeature', 'version': '1.0.0', 'typeName': '%s:%s' %(self.workspace, self.name), 'outputFormat': self.frmt}
         if self.filters:
             params["filter"] = self.create_filter()
         try:
+            if self.frmt == "DXF":
+                params["outputFormat"] = "SHAPE-ZIP"
             r = requests.get(self.url, params=params)
         except Exception as e:
             log.debug("Failed to connect to tomcat. Start tomcat and try again.")
             sys.exit()
-        #print r.content
-        log.debug("The format is %s" % exts[self.frmt])
         if self.frmt.upper() == "CSV":
             name = 'tmp'
         else:
             name = self.name
-        f = open('%s.%s' % (name, exts[self.frmt]), 'w')
-        f.write(r.content)
-        f.close()
+        
+        fil = os.path.join(os.environ["HOME"], 'local', 'geoserver_wrapper', 'data')
+        if not os.path.exists(fil):
+            os.mkdir(fil)
+        try:
+            log.debug("The format is %s" % exts[self.frmt])
+            f = open(os.path.join('%s' % fil, '%s.%s' % (name, exts[self.frmt])), 'w')
+            f.write(r.content)
+            f.close()
+        except Exception as e:
+            log.debug("Wrong extension")
+            sys.exit()
+        if self.frmt == "DXF":
+            #fh = open(os.path.join('%s' % fil, '%s.%s' % (name, exts[self.frmt])), 'rb')
+            with zipfile.ZipFile(os.path.join('%s' % fil, '%s.%s' % (name, exts[self.frmt])), "r") as z:
+                z.extractall(fil)
+            
+            convertor = Convertor("%s.%s" % (self.name, 'shp'), "%s.%s" % (self.name, exts[self.frmt]), fil, fil, "ogr")
+            convertor.translate()
         if self.frmt.upper() == "CSV":
             self.csv_remove_geom()
     
@@ -149,5 +167,5 @@ if __name__ == '__main__':
         name = 'england_ct_2001'
         frmt = 'SHAPE-ZIP'
         filters = {'label': [11, 12]}
-    app = GeoserverExtractor(url, workspace, name, frmt, filters)
+    app = GeoserverExtractor(url, workspace, name, frmt, 'output', filters)
     app.get_data()
