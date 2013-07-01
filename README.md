@@ -4,12 +4,12 @@ geoserver_wrapper.py
 
 This script is for getting data from geoserver through python command line. The script is exporting
 data that are in a Geoserver using the Geoserver WFS in various formats such as:
-    * Shapefile
-    * KML
-    * GML2
-    * GML3
-    * Geojson
-    * CSV
+* Shapefile
+* KML
+* GML2
+* GML3
+* Geojson
+* CSV
 
 
 Requirements
