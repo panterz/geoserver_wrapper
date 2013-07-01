@@ -29,13 +29,15 @@ Installation instructions
 Installing script locally:
 
 .. code-block::
-    $ fab deploy_local
+
+    fab deploy_local
 
 Then you need to go to:
 
 .. code-block::
-    $ cd ~/local/geoserver_wrapper/
-    $ . bin/activate
-    $ cd src
-    $ python borders_extractor.py -u='http://localhost:8081/geoserver/wfs' -w='ukb' -n='england_ct_2001' -fr='SHAPE-ZIP' -fi='{"label": [11, 12]}'
+
+    cd ~/local/geoserver_wrapper/
+    . bin/activate
+    cd src
+    python borders_extractor.py -u='http://localhost:8081/geoserver/wfs' -w='ukb' -n='england_ct_2001' -fr='SHAPE-ZIP' -fi='{"label": [11, 12]}'
 
