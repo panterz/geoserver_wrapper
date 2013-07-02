@@ -6,7 +6,7 @@ from format_converter import Convertor
 
 """
 example:
-python borders_extractor.py -u='http://localhost:8081/geoserver/wfs' -w='ukb' -n='england_ct_2001' -fr='SHAPE-ZIP' -fi='{"label": [11, 12]}' -o='output'
+python borders_extractor.py -u='http://localhost:8081/geoserver/wfs' -w='<workspace>' -n='<name>' -fr='SHAPE-ZIP' -fi='{"label": [11, 12]}' -o='output'
 """
 
 def get_arguments():
@@ -164,11 +164,9 @@ if __name__ == '__main__':
             filters = ast.literal_eval(args.fi)
         else:
             filters = None
+        app = GeoserverExtractor(url, workspace, name, frmt, output, filters)
+        app.get_data()
     else:
-        url = 'http://localhost:8081/geoserver/wfs'
-        workspace = 'ukb'
-        name = 'england_ct_2001'
-        frmt = 'SHAPE-ZIP'
-        filters = {'label': [11, 12]}
-    app = GeoserverExtractor(url, workspace, name, frmt, output, filters)
-    app.get_data()
+        print "You have to insert some arguments. For example:"
+        print "python borders_extractor.py -u='http://localhost:8081/geoserver/wfs' -w='<workspace>' -n='<name>' -fr='SHAPE-ZIP' -fi='{\"label\": [11, 12]}' -o='output"
+    
