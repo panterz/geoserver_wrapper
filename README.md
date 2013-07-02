@@ -39,5 +39,5 @@ Then you need to go to:
     cd ~/local/geoserver_wrapper/
     . bin/activate
     cd src
-    python borders_extractor.py -u='http://localhost:8081/geoserver/wfs' -w='ukb' -n='england_ct_2001' -fr='SHAPE-ZIP' -fi='{"label": [11, 12]}'
+    python borders_extractor.py -u='http://localhost:8081/geoserver/wfs' -w='<workspace>' -n='<name of dataset>' -fr='SHAPE-ZIP' -fi='{"label": [11, 12]}'
 

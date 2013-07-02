@@ -1,4 +1,4 @@
-import sys, argparse, ast, csv, os, zipfile
+import sys, argparse, ast, csv, os, zipfile, time
 from xml.etree.ElementTree import Element, SubElement, Comment, ElementTree, tostring
 import requests
 from logtool import getLogger
@@ -34,6 +34,7 @@ class GeoserverExtractor(object):
         self.url = url
         self.output = output
         log.debug("init with workspace %s, name %s, format %s, filters %s, url %s and output folder %s" % (self.workspace, self.name, self.frmt, self.filters, self.url, self.output))
+        self.start_time = time.time()
     
     def get_data(self):
         """
@@ -55,7 +56,7 @@ class GeoserverExtractor(object):
         else:
             name = self.name
         
-        fil = os.path.join(os.environ["HOME"], 'local', 'geoserver_wrapper', 'data')
+        fil = os.path.join(os.environ["HOME"], 'local', 'geoserver_wrapper', 'data', self.output)
         if not os.path.exists(fil):
             os.mkdir(fil)
         try:
@@ -75,6 +76,7 @@ class GeoserverExtractor(object):
             convertor.translate()
         if self.frmt.upper() == "CSV":
             self.csv_remove_geom()
+        print time.time() - self.start_time, "seconds"
     
     def csv_remove_geom(self):
         """
@@ -157,6 +159,7 @@ if __name__ == '__main__':
         workspace = args.w
         name = args.n
         frmt = args.fr
+        output = args.o
         if args.fi:
             filters = ast.literal_eval(args.fi)
         else:
@@ -167,5 +170,5 @@ if __name__ == '__main__':
         name = 'england_ct_2001'
         frmt = 'SHAPE-ZIP'
         filters = {'label': [11, 12]}
-    app = GeoserverExtractor(url, workspace, name, frmt, 'output', filters)
+    app = GeoserverExtractor(url, workspace, name, frmt, output, filters)
     app.get_data()
