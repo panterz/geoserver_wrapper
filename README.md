@@ -10,6 +10,8 @@ data that are in a Geoserver using the Geoserver WFS in various formats such as:
 * GML3
 * Geojson
 * CSV
+* MIF
+* TAB
 
 
 Requirements
@@ -40,4 +42,15 @@ Then you need to go to:
     . bin/activate
     cd src
     python borders_extractor.py -u='http://localhost:8081/geoserver/wfs' -w='<workspace>' -n='<name of dataset>' -fr='SHAPE-ZIP' -fi='{"label": [11, 12]}'
+
+
+The arguments for th format are:
+* Shapefile  --> -fr='SHAPE-ZIP'
+* KML --> -fr='OGR-KML'
+* GML2 --> -fr='GM2'
+* GML3 --> -fr='GML3'
+* Geojson --> -fr='JSON'
+* CSV --> -fr='OGR-CSV'
+* MIF --> fr-'OGR-MIF'
+* TAB --> fr-'OGR-TAB'
 

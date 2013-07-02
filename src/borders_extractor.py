@@ -40,7 +40,7 @@ class GeoserverExtractor(object):
         """
         do get request for getting the data
         """
-        exts = {"SHAPE-ZIP": "zip", "CSV": "csv", "JSON": "json", "GML2": "xml", "GML3": "xml", "OGR-KML": "kml", "OGR-TAB": "zip", "OGR-TAB": "zip", "OGR-CSV": "csv", "DXF": "dxf"}
+        exts = {"SHAPE-ZIP": "zip", "CSV": "csv", "JSON": "json", "GML2": "xml", "GML3": "xml", "OGR-KML": "kml", "OGR-TAB": "zip", "OGR-MIF": "zip", "OGR-CSV": "csv", "DXF": "dxf"}
         params = {'service': 'WFS', 'request': 'GetFeature', 'version': '1.0.0', 'typeName': '%s:%s' %(self.workspace, self.name), 'outputFormat': self.frmt}
         if self.filters:
             params["filter"] = self.create_filter()
